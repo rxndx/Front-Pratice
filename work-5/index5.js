@@ -21,6 +21,9 @@ const students = [
     }
 ];
 
+console.log(averageStudentMark(10));
+console.log(averageGroupMark(students));
+
 function averageStudentMark(id) {
     const student = students.find(student => student.id === id);
     if (!student) {
@@ -38,6 +41,3 @@ function averageGroupMark(students) {
     const averageMark = sumOfMarks / allMarks.length;
     return averageMark.toFixed(2);
 }
-
-console.log(averageStudentMark(10));
-console.log(averageGroupMark(students));
