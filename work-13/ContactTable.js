@@ -14,22 +14,23 @@ class ContactTable {
         this.updateTable();
     }
 
+    createTableRow(contact, index) {
+        const row = `
+            <tr>
+                <td>${contact.name}</td>
+                <td>${contact.surname}</td>
+                <td>${contact.phoneNumber}</td>
+                <td><button class="deleteButton" data-index="${index}">Удалить</button></td>
+            </tr>
+        `;
+        return row;
+    }
+
     updateTable() {
         this.tableBody.innerHTML = "";
         this.contacts.forEach((contact, index) => {
             const row = this.createTableRow(contact, index);
-            this.tableBody.appendChild(row);
+            this.tableBody.insertAdjacentHTML('beforeend', row);
         });
-    }
-
-    createTableRow(contact, index) {
-        const row = document.createElement("tr");
-        row.innerHTML =
-            `<td>${contact.name}</td>
-            <td>${contact.surname}</td>
-            <td>${contact.phoneNumber}</td>
-            <td><button class="deleteButton" data-index="${index}">Удалить</button></td>`
-        ;
-        return row;
     }
 }
