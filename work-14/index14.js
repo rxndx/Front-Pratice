@@ -1,25 +1,32 @@
+const TODO_LIST_SELECTOR = "#todoList";
+const MSG_INPUT_SELECTOR = "#msgInput";
+const MSG_BUTTON_SELECTOR = "#msgButton";
+
+const DELETE_BUTTON = "delete-button";
+const GREEN_CLASS = "green";
+
 class TodoListManager {
     constructor() {
-        this.todoList = document.querySelector("#todoList");
-        this.msgInput = document.querySelector("#msgInput");
-        this.msgButton = document.querySelector("#msgButton");
+        this.todoList = document.querySelector(TODO_LIST_SELECTOR);
+        this.msgInput = document.querySelector(MSG_INPUT_SELECTOR);
+        this.msgButton = document.querySelector(MSG_BUTTON_SELECTOR);
 
         this.msgButton.addEventListener("click", this.handleButtonClick.bind(this));
         this.todoList.addEventListener("click", this.handleListClick.bind(this));
     }
 
     handleButtonClick() {
-        const inputValue = this.msgInput.value.trim();
-        if (inputValue !== "") {
+        const inputValue = this.getInputValue();
+        if (inputValue) {
             this.addListItem(inputValue);
-            this.msgInput.value = "";
+            this.clearInput();
         }
     }
 
     handleListClick(event) {
         const listItem = event.target.closest("li");
         if (listItem) {
-            if (event.target.classList.contains("delete-button")) {
+            if (event.target.classList.contains(DELETE_BUTTON)) {
                 this.deleteListItem(listItem);
             } else {
                 this.toggleColor(listItem);
@@ -27,18 +34,26 @@ class TodoListManager {
         }
     }
 
+    getInputValue() {
+        return this.msgInput.value.trim();
+    }
+
     addListItem(text) {
-        const listItemHTML = `<li>${text} <button class="delete-button">Удалить</button></li>`;
+        const listItemHTML = `<li>${text} <button class="${DELETE_BUTTON}">Удалить</button></li>`;
         this.todoList.insertAdjacentHTML("beforeend", listItemHTML);
     }
 
     toggleColor(listItem) {
-        listItem.classList.toggle("green");
+        listItem.classList.toggle(GREEN_CLASS);
     }
 
     deleteListItem(listItem) {
         listItem.remove();
     }
+
+    clearInput() {
+        this.msgInput.value = "";
+    }
 }
 
-const todoListManager = new TodoListManager();
+todoListManager = new TodoListManager();
