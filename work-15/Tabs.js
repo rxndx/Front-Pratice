@@ -6,8 +6,12 @@ class Tabs {
 
     constructor(element) {
         this.rootEl = element;
-        this.navItems = this.getNavItems();
-        this.tabContents = this.getTabContents();
+
+        this.navBlock = this.getNavBlock();
+        this.divBlock = this.getDivBlock();
+
+        this.navItems = Array.from(this.navBlock.children);
+        this.tabContents = Array.from(this.divBlock.children);
 
         this.initTabs();
         this.showTab(0);
@@ -21,29 +25,20 @@ class Tabs {
         return this.rootEl.querySelector(`.${Tabs.TABS_CONTENT_BLOCK}`);
     }
 
-    getNavItems() {
-        return Array.from(this.getNavBlock().children);
-    }
-
-    getTabContents() {
-        return Array.from(this.getDivBlock().children);
-    }
-
     initTabs() {
-        this.navItems.forEach((item, index) => {
-            item.addEventListener('click', this.showTab.bind(this, index));
+        this.navBlock.addEventListener('click', (event) => {
+            if (event.target.classList.contains('tab-item')) {
+                const index = this.navItems.indexOf(event.target);
+                this.showTab(index);
+            }
         });
     }
 
     showTab(index) {
         this.navItems.forEach((item, i) => {
-            if (i === index) {
-                item.classList.add(Tabs.TAB_ITEM_ACTIVE);
-                this.tabContents[i].classList.add(Tabs.TAB_CONTENT_ACTIVE);
-            } else {
-                item.classList.remove(Tabs.TAB_ITEM_ACTIVE);
-                this.tabContents[i].classList.remove(Tabs.TAB_CONTENT_ACTIVE);
-            }
+            const isActive = i === index;
+            item.classList.toggle(Tabs.TAB_ITEM_ACTIVE, isActive);
+            this.tabContents[i].classList.toggle(Tabs.TAB_CONTENT_ACTIVE, isActive);
         });
     }
 }
