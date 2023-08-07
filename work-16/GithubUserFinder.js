@@ -1,18 +1,14 @@
 class GithubUserFinder {
-    static USERNAME_INPUT = '#usernameInput'
-    static SEARCH_BUTTON = '#searchButton'
-    static AVATAR = '#avatar'
-    static REPOSITORY_COUNT = '#reposCount'
-    static FOLLOWERS_COUNT = '#followersCount'
-    static FOLLOWING_COUNT = '#followingCount'
+    static USERNAME_INPUT = "#usernameInput";
+    static SEARCH_BUTTON = "#searchButton";
+    static AVATAR = "#avatar";
+    static USER_INFO_TEXT = "#userInfoText";
 
     constructor() {
         this.usernameInput = document.querySelector(GithubUserFinder.USERNAME_INPUT);
         this.searchButton = document.querySelector(GithubUserFinder.SEARCH_BUTTON);
         this.avatar = document.querySelector(GithubUserFinder.AVATAR);
-        this.reposCount = document.querySelector(GithubUserFinder.REPOSITORY_COUNT);
-        this.followersCount = document.querySelector(GithubUserFinder.FOLLOWERS_COUNT);
-        this.followingCount = document.querySelector(GithubUserFinder.FOLLOWING_COUNT);
+        this.userInfoText = document.querySelector(GithubUserFinder.USER_INFO_TEXT);
 
         this.searchButton.addEventListener("click", this.searchUser.bind(this));
     }
@@ -37,9 +33,12 @@ class GithubUserFinder {
 
     displayUserInfo(userData) {
         this.avatar.src = userData.avatar_url;
-        this.reposCount.textContent = userData.public_repos;
-        this.followersCount.textContent = userData.followers;
-        this.followingCount.textContent = userData.following;
+
+        this.userInfoText.innerHTML = `
+      <p>Repositories: <span>${userData.public_repos}</span></p>
+      <p>Followers: <span>${userData.followers}</span></p>
+      <p>Following: <span>${userData.following}</span></p>
+    `;
     }
 
     showUserNotFoundError() {
