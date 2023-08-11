@@ -51,13 +51,15 @@ class TodoListManager {
                 throw new Error("Failed to load todos");
             }
             const todos = await response.json();
-
-            this.todoList.innerHTML = "";
-
-            todos.forEach(todo => this.addListItem(todo.title, todo.id, todo.done));
+            await this.renderTodos(todos);
         } catch (error) {
             this.showAlert("Error loading todos: " + error.message);
         }
+    }
+
+    async renderTodos(todos) {
+        this.todoList.innerHTML = "";
+        todos.forEach(todo => this.addListItem(todo.title, todo.id, todo.done));
     }
 
     async addTodoOnServer(title, done = false) {
