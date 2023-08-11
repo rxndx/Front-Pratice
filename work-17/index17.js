@@ -1,0 +1,1 @@
+const todoListManager = new TodoListManager();
