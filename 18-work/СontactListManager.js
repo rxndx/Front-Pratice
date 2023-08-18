@@ -50,7 +50,7 @@ class ContactListManager {
                 const contactId = listItem.dataset.contactId;
                 await this.deleteContactOnServer(contactId);
                 listItem.remove();
-            } else if (event.target.classList.contains("edit-button")) {
+            } else if (event.target.classList.contains(EDIT_BUTTON)) {
                 this.selectContact(listItem);
                 this.populateForm(listItem);
                 this.showSaveButton();
