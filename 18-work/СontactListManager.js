@@ -1,5 +1,5 @@
-import {Api} from "./api.js";
-import {contactsUrl} from "./url.js";
+import {Api} from "../lib/api.js";
+import {contactsUrl} from "../lib/url.js";
 
 const CONTACT_LIST_SELECTOR = "#contactList";
 const FIRST_NAME_INPUT_SELECTOR = "#firstNameInput";
