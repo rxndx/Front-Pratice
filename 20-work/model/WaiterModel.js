@@ -11,7 +11,7 @@ export default class WaiterModel {
         try {
             this.waitersList = await this.api.getList();
         } catch (error) {
-            throw new Error(`Error: ${error.message}`);
+            throw error;
         }
     }
 
@@ -23,7 +23,7 @@ export default class WaiterModel {
             this.waitersList.push(createdWaiter);
             return createdWaiter;
         } catch (error) {
-            throw new Error(`Error: ${error.message}`);
+            throw error;
         }
     }
 
@@ -32,7 +32,7 @@ export default class WaiterModel {
             await this.api.update(id, updatedWaiter);
             this.updateLocalWaiter(parseInt(id), updatedWaiter);
         } catch (error) {
-            throw new Error(`Error: ${error.message}`);
+            throw error;
         }
     }
 
@@ -41,7 +41,7 @@ export default class WaiterModel {
             await this.api.delete(id);
             this.deleteLocalWaiter(parseInt(id));
         } catch (error) {
-            throw new Error(`Error: ${error.message}`);
+            throw error;
         }
     }
 
