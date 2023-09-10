@@ -3,6 +3,7 @@ const MESSAGE_FORM = 'message-form';
 const USERNAME_INPUT = 'username-input';
 const MESSAGE_INPUT = 'message-input';
 const MESSAGE_ITEM = 'message-item';
+const SUBMIT_BUTTON = 'submit';
 
 export default class ChatView {
     constructor() {
@@ -35,9 +36,9 @@ export default class ChatView {
     }
 
     bindSendMessage(handler) {
-        this.messageForm.addEventListener('submit', (event) => {
+        this.messageForm.addEventListener(SUBMIT_BUTTON, function(event) {
             event.preventDefault();
             handler(this.getUsername(), this.getMessage());
-        });
+        }.bind(this));
     }
 }
