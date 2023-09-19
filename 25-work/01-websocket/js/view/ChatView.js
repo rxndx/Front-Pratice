@@ -35,10 +35,19 @@ export default class ChatView {
         this.messageInput.value = '';
     }
 
-    bindSendMessage(handler) {
+    bindSendMessage(handleSendMessage) {
         this.messageForm.addEventListener(SUBMIT_BUTTON, async (event) => {
             event.preventDefault();
-            await handler(this.getUsername(), this.getMessage());
+            const username = this.getUsername();
+            const message = this.getMessage();
+            if (username && message) {
+                const data = {
+                    message,
+                    username,
+                };
+                handleSendMessage(data);
+                this.clearMessageInput();
+            }
         });
     }
 }
