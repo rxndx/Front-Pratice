@@ -1,25 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { EditWaiterForm } from './EditForm';
 import { WaitersList } from './WaitersList';
-import { WaitersApi } from '../api/server';
+import { useWaiters } from './useWaiters';
 
 export function Waiters() {
-    const [waitersList, setWaitersList] = useState([]);
-
-    useEffect(() => {
-        WaitersApi.getList().then((data) => setWaitersList(data));
-    }, []);
-
-    const onWaiterSubmit = (waiter) => {
-        WaitersApi.create(waiter).then((newWaiter) => {
-            setWaitersList([...waitersList, newWaiter]);
-        });
-    };
+    const { waitersList, createWaiter, updateWaiter, deleteWaiter } = useWaiters();
 
     return (
         <>
-            <EditWaiterForm onWaiterSubmit={onWaiterSubmit} />
-            <WaitersList waiters={waitersList} />
+            <EditWaiterForm onWaiterSubmit={createWaiter} />
+            <WaitersList
+                waiters={waitersList}
+                onDelete={deleteWaiter}
+                onEdit={updateWaiter}
+            />
         </>
     );
 }
