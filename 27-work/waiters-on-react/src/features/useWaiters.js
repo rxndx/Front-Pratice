@@ -1,36 +1,37 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { WaitersApi } from '../api/server';
+import { addWaiter, editWaiter, removeWaiter } from '../store/waitersAction';
 
 export function useWaiters() {
-    const [waitersList, setWaitersList] = useState([]);
+    const dispatch = useDispatch();
+    const waitersList = useSelector((state) => state.waitersList);
 
     useEffect(() => {
-        loadWaiters();
-    }, []);
+        const loadWaiters = () => {
+            WaitersApi.getList().then((data) => {
+                data.forEach((waiter) => dispatch(addWaiter(waiter)));
+            });
+        };
 
-    const loadWaiters = () => {
-        WaitersApi.getList().then((data) => setWaitersList(data));
-    };
+        loadWaiters();
+    }, [dispatch]);
 
     const createWaiter = (waiter) => {
         return WaitersApi.create(waiter).then((newWaiter) => {
-            setWaitersList((prevList) => [...prevList, newWaiter]);
+            dispatch(addWaiter(newWaiter));
         });
     };
 
     const updateWaiter = (id, data) => {
         return WaitersApi.update(id, data).then((updatedWaiter) => {
-            setWaitersList((prevList) =>
-                prevList.map((waiter) => (waiter.id === id ? updatedWaiter : waiter))
-            );
+            dispatch(editWaiter(id, updatedWaiter));
         });
     };
 
     const deleteWaiter = (id) => {
         return WaitersApi.delete(id).then(() => {
-            setWaitersList((prevList) =>
-                prevList.filter((waiter) => waiter.id !== id)
-            );
+            dispatch(removeWaiter(id));
         });
     };
 
