@@ -1,4 +1,4 @@
-import { ADD_WAITER, EDIT_WAITER, REMOVE_WAITER } from './waitersAction';
+import { ADD_WAITER, EDIT_WAITER, REMOVE_WAITER } from '../store/waitersAction';
 
 const initialState = {
     waitersList: [],
