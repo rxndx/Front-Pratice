@@ -1,9 +1,24 @@
 import React, { useState } from 'react';
+import { useFormik } from "formik";
+import { waiterValidationSchema } from "../components/WaiterValidationSchema";
+import { renderError } from "../components/ValidationError";
 
 export function WaitersItem({ waiter, onEdit, onDelete }) {
     const [isEditing, setIsEditing] = useState(false);
-    const [editedWaiter, setEditedWaiter] = useState(waiter);
-    const [error, setError] = useState('');
+
+    const formik = useFormik({
+        initialValues: {
+            firstName: waiter.firstName,
+            phone: waiter.phone,
+        },
+        validationSchema: waiterValidationSchema,
+        onSubmit: (values) => {
+            if (formik.isValid) {
+                onEdit(waiter.id, values);
+                setIsEditing(false);
+            }
+        },
+    });
 
     const handleEditClick = () => {
         setIsEditing(true);
@@ -11,26 +26,6 @@ export function WaitersItem({ waiter, onEdit, onDelete }) {
 
     const handleCancelClick = () => {
         setIsEditing(false);
-        setError('');
-    };
-
-    const handleSaveClick = () => {
-        if (!editedWaiter.firstName || !editedWaiter.phone) {
-            setError('Please fill in all fields.');
-            return;
-        }
-
-        onEdit(editedWaiter.id, editedWaiter);
-        setIsEditing(false);
-        setError('');
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setEditedWaiter({
-            ...editedWaiter,
-            [name]: value,
-        });
     };
 
     return (
@@ -41,30 +36,33 @@ export function WaitersItem({ waiter, onEdit, onDelete }) {
                     <input
                         type="text"
                         name="firstName"
-                        value={editedWaiter.firstName}
-                        onChange={handleInputChange}
+                        value={formik.values.firstName}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                     />
                 ) : (
                     waiter.firstName
                 )}
+                {isEditing && renderError(formik.errors, formik.touched, 'firstName')}
             </td>
             <td>
                 {isEditing ? (
                     <input
                         type="text"
                         name="phone"
-                        value={editedWaiter.phone}
-                        onChange={handleInputChange}
+                        value={formik.values.phone}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                     />
                 ) : (
                     waiter.phone
                 )}
+                {isEditing && renderError(formik.errors, formik.touched, 'phone')}
             </td>
             <td>
-                {error && <div className="error">{error}</div>}
                 {isEditing ? (
                     <>
-                        <button onClick={handleSaveClick}>Save</button>
+                        <button type="submit">Save</button>
                         <button onClick={handleCancelClick}>Cancel</button>
                     </>
                 ) : (
