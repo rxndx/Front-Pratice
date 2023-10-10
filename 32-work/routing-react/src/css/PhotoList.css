@@ -1,0 +1,32 @@
+.photo-list-container {
+    padding: 20px;
+}
+
+.photo-list-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.photo-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.photo-list li {
+    margin: 10px;
+    display: inline-block;
+    text-align: center;
+    list-style-type: none;
+    vertical-align: top;
+}
+
+.photo-list img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+.photo-list img:hover {
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}

@@ -1,0 +1,32 @@
+.user-list-container {
+    padding: 20px;
+}
+
+.user-list-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.user-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.user-list li {
+    margin-bottom: 10px;
+}
+
+.user-list a.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.user-list a.button:hover {
+    background-color: #0056b3;
+}
