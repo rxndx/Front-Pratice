@@ -1,44 +1,46 @@
-import React, { useState } from 'react';
+import React  from 'react';
+import { Formik, Field } from 'formik';
+import { waiterValidationSchema } from "../components/WaiterValidationSchema";
+import { ValidationError } from "../components/ValidationError";
 
 export function EditWaiterForm({ onWaiterSubmit }) {
-    const [firstName, setFirstName] = useState('');
-    const [phone, setPhone] = useState('');
+    const initialValues = {
+        firstName: '',
+        phone: '',
+    };
 
-    const onSubmit = (event) => {
-        event.preventDefault();
-
-        const newWaiter = {
-            firstName,
-            phone,
-        };
-
-        onWaiterSubmit(newWaiter);
-
-        setFirstName('');
-        setPhone('');
+    const handleSubmit = (values, { resetForm }) => {
+        onWaiterSubmit(values);
+        resetForm();
     };
 
     return (
-        <form onSubmit={onSubmit}>
-            <label htmlFor="firstName">First Name</label>
-            <input
-                type="text"
-                id="firstName"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                required
-            />
+        <Formik
+            initialValues={initialValues}
+            validationSchema={waiterValidationSchema}
+            onSubmit={handleSubmit}
+        >
+            {formik => (
+                <form onSubmit={formik.handleSubmit}>
+                    <label htmlFor="firstName">First Name</label>
+                    <Field
+                        type="text"
+                        id="firstName"
+                        name="firstName"
+                    />
+                    <ValidationError name="firstName" touched={formik.touched} />
 
-            <label htmlFor="phone">Phone</label>
-            <input
-                type="text"
-                id="phone"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-            />
+                    <label htmlFor="phone">Phone</label>
+                    <Field
+                        type="text"
+                        id="phone"
+                        name="phone"
+                    />
+                    <ValidationError name="phone" touched={formik.touched} />
 
-            <button type="submit">Add Waiter</button>
-        </form>
+                    <button type="submit">Add Waiter</button>
+                </form>
+            )}
+        </Formik>
     );
 }
