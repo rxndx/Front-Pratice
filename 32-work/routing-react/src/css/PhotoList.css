@@ -1,0 +1,28 @@
+.photo-list ul {
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    justify-content: center;
+}
+
+.photo-list li {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
+}
+
+.photo-list img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    display: block;
+}
+
+.photo-list p {
+    margin-top: 5px;
+    font-size: 16px;
+}
