@@ -5,12 +5,14 @@ import store from './store/store';
 import UserList from './features/userList';
 import AlbumList from './features/albumList';
 import PhotoList from "./features/photoList";
+import HomePage from "./features/HomePage";
 
 function App() {
     return (
         <Provider store={store}>
             <Router>
                 <Routes>
+                    <Route path="/" element={<HomePage />} />
                     <Route path="/users" element={<UserList />} />
                     <Route path="/albums/:userId" element={<AlbumList />} />
                     <Route path="/albums" element={<AlbumList />} />
