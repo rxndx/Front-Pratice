@@ -1,14 +1,16 @@
-import { GET_USERS } from '../store/types';
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = [];
 
-const usersReducer = (state = initialState, action) => {
-    switch (action.type) {
-        case GET_USERS:
+const userSlice = createSlice({
+    name: 'users',
+    initialState,
+    reducers: {
+        setUsers: (state, action) => {
             return action.payload;
-        default:
-            return state;
-    }
-};
+        },
+    },
+});
 
-export default usersReducer;
+export const { setUsers } = userSlice.actions;
+export default userSlice.reducer;
