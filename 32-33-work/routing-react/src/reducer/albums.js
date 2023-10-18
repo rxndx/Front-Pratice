@@ -1,14 +1,16 @@
-import { GET_ALBUMS } from '../store/types';
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = [];
 
-const albumsReducer = (state = initialState, action) => {
-    switch (action.type) {
-        case GET_ALBUMS:
+const albumSlice = createSlice({
+    name: 'albums',
+    initialState,
+    reducers: {
+        setAlbums: (state, action) => {
             return action.payload;
-        default:
-            return state;
-    }
-};
+        },
+    },
+});
 
-export default albumsReducer;
+export const { setAlbums } = albumSlice.actions;
+export default albumSlice.reducer;

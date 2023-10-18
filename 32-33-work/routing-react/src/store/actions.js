@@ -1,10 +1,12 @@
-import { GET_ALBUMS, GET_PHOTOS, GET_USERS } from './types';
-import { getAlbumsByUserId, getPhotosByAlbumId, getUsers } from '../api/api';
+import { getUsers, getAlbumsByUserId, getPhotosByAlbumId } from '../api/api';
+import { setUsers } from '../reducer/users';
+import { setAlbums } from '../reducer/albums';
+import { setPhotos } from '../reducer/photos';
 
 export const fetchUsers = () => async (dispatch) => {
     try {
         const data = await getUsers();
-        dispatch({ type: GET_USERS, payload: data });
+        dispatch(setUsers(data));
     } catch (error) {
         console.error('Error fetching users:', error);
     }
@@ -13,7 +15,7 @@ export const fetchUsers = () => async (dispatch) => {
 export const fetchAlbumsByUserId = (userId) => async (dispatch) => {
     try {
         const data = await getAlbumsByUserId(userId);
-        dispatch({ type: GET_ALBUMS, payload: data });
+        dispatch(setAlbums(data));
     } catch (error) {
         console.error('Error fetching albums:', error);
     }
@@ -22,9 +24,8 @@ export const fetchAlbumsByUserId = (userId) => async (dispatch) => {
 export const fetchPhotosByAlbumId = (albumId) => async (dispatch) => {
     try {
         const data = await getPhotosByAlbumId(albumId);
-        dispatch({ type: GET_PHOTOS, payload: data });
+        dispatch(setPhotos(data));
     } catch (error) {
         console.error('Error fetching photos:', error);
     }
 };
-

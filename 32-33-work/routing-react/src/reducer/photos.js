@@ -1,14 +1,16 @@
-import { GET_PHOTOS } from '../store/types';
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = [];
 
-const photosReducer = (state = initialState, action) => {
-    switch (action.type) {
-        case GET_PHOTOS:
+const photoSlice = createSlice({
+    name: 'photos',
+    initialState,
+    reducers: {
+        setPhotos: (state, action) => {
             return action.payload;
-        default:
-            return state;
-    }
-};
+        },
+    },
+});
 
-export default photosReducer;
+export const { setPhotos } = photoSlice.actions;
+export default photoSlice.reducer;
