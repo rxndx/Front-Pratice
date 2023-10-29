@@ -1,21 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Table, Input, Button, Modal, Form, Space, InputNumber } from 'antd';
-import { useLocation, useNavigate } from 'react-router-dom';
+import {useDispatch, useSelector} from 'react-redux';
+import {Table, Input, Button, Modal, Form, Space, InputNumber, message} from 'antd';
+import {useSearchParams} from 'react-router-dom';
 
 import Navigation from '../../components/Navigation';
-import generateSlice from '../../store/reducer';
-import { dishesUrl } from '../../api/url';
+import {DishTableColumn} from "./DataForm/DishColumn";
+import {clearFilter, updateFilter} from "../../utils/Filters";
+import {
+    handleCancel,
+    handleDelete,
+    handleEdit,
+    handleSaveError,
+    handleSaveSuccess,
+    showModal
+} from "../../utils/BasicHandlers";
+import {dishesSlice} from "../../store/store";
 
 const { Search } = Input;
-
-const dishSlice = generateSlice('dishes', dishesUrl);
 
 function DishList() {
     const dispatch = useDispatch();
     const dishes = useSelector((state) => state.dishes.list);
-    const navigate = useNavigate();
-    const location = useLocation();
+    let [searchParams, setSearchParams] = useSearchParams()
+    const filter = searchParams.get('filter');
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -26,36 +33,8 @@ function DishList() {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        dispatch(dishSlice.fetchItems());
+        dispatch(dishesSlice.fetchItems());
     }, [dispatch]);
-
-    const columns = [
-        {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-        },
-        {
-            title: 'Description',
-            dataIndex: 'description',
-            key: 'description',
-        },
-        {
-            title: 'Price',
-            dataIndex: 'price',
-            key: 'price',
-        },
-        {
-            title: 'Actions',
-            key: 'actions',
-            render: (text, record) => (
-                <Space>
-                    <Button onClick={() => handleEdit(record)}>Edit</Button>
-                    <Button onClick={() => handleDelete(record.id)}>Delete</Button>
-                </Space>
-            ),
-        },
-    ];
 
     const filterDishes = (filter) => {
         if (!filter) {
@@ -67,23 +46,13 @@ function DishList() {
         });
     };
 
-    const updateFilter = (value) => {
-        navigate(`/dishes?filter=${value}`);
-        setSearchValue(value);
-    };
+    const updateFilterDishes = () => {
+        updateFilter(searchValue, setSearchParams, setSearchValue);
+    }
 
-    const clearFilter = () => {
-        navigate('/dishes');
-        setSearchValue('');
-    };
-
-    const showModal = () => {
-        setIsModalVisible(true);
-        form.resetFields();
-        setIsEditing(false);
-        setInitialFormData({});
-        setSaveError('');
-    };
+    const clearFilterDishes = () => {
+        clearFilter(setSearchParams, setSearchValue);
+    }
 
     const handleOk = async () => {
         try {
@@ -101,7 +70,7 @@ function DishList() {
                     if (isDuplicate) {
                         setSaveError('Dish with the same name already exists.');
                     } else {
-                        dispatch(dishSlice.updateItem(form.getFieldValue('id'), values));
+                        await dispatch(dishesSlice.updateItem(form.getFieldValue('id'), values));
                         setIsModalVisible(false);
                     }
                 }
@@ -114,38 +83,35 @@ function DishList() {
                 if (isDuplicate) {
                     setSaveError('Dish with the same name already exists.');
                 } else {
-                    await dispatch(dishSlice.createItem(values));
+                    await dispatch(dishesSlice.createItem(values));
                     setIsModalVisible(false);
-                    handleSaveSuccess();
+                    handleSaveSuccess(setSaveError);
+                    message.success('Successfully.');
                 }
             }
         } catch (error) {
-            handleSaveError();
+            handleSaveError(setSaveError);
+            message.error(error);
         }
     };
 
-    const handleCancel = () => {
-        setIsModalVisible(false);
-    };
+    const handleEditDish = (data) => {
+        handleEdit(data, setIsModalVisible, form, setIsEditing, setInitialFormData);
+    }
 
-    const handleEdit = (data) => {
-        setIsModalVisible(true);
-        form.setFieldsValue(data);
-        setIsEditing(true);
-        setInitialFormData(data);
-    };
+    const handleDeleteDish = (id) => {
+        handleDelete(id, dispatch, dishesSlice).then(r => message.success('Deleted.'));
+    }
 
-    const handleDelete = (id) => {
-        dispatch(dishSlice.deleteItem(id));
-    };
+    const handleCancelDish = () => {
+        handleCancel(setIsModalVisible);
+    }
 
-    const handleSaveError = () => {
-        setSaveError('Please enter valid data.');
-    };
+    const showModalDish = () => {
+        showModal(setIsModalVisible, form, setIsEditing, setInitialFormData);
+    }
 
-    const handleSaveSuccess = () => {
-        setSaveError('');
-    };
+    const columns = DishTableColumn(handleEditDish, handleDeleteDish);
 
     return (
         <div>
@@ -154,25 +120,23 @@ function DishList() {
                 placeholder="Search by dish name"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                onSearch={updateFilter}
+                onSearch={updateFilterDishes}
                 enterButton
                 style={{ marginBottom: '16px' }}
             />
-            <Button type="primary" onClick={showModal}>
+            <Button type="primary" onClick={showModalDish}>
                 Add Dish
             </Button>
-            <Button onClick={clearFilter}>Show All</Button>
+            <Button onClick={clearFilterDishes}>Show All</Button>
             <Table
-                dataSource={filterDishes(
-                    new URLSearchParams(location.search).get('filter')
-                )}
+                dataSource={filterDishes(filter)}
                 columns={columns}
             />
             <Modal
                 title={isEditing ? 'Edit Dish' : 'Add Dish'}
                 visible={isModalVisible}
                 onOk={handleOk}
-                onCancel={handleCancel}
+                onCancel={handleCancelDish}
             >
                 <Form form={form} name="dishForm">
                     <Form.Item

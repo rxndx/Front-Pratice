@@ -1,21 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Table, Input, Button, Modal, Form, Space, message } from 'antd';
-import { useLocation, useNavigate } from 'react-router-dom';
+import {useSearchParams} from 'react-router-dom';
 
 import Navigation from '../../components/Navigation';
-import generateSlice from '../../store/reducer';
-import { waitersUrl } from '../../api/url';
+import {clearFilter, updateFilter} from "../../utils/Filters";
+import {
+    handleCancel,
+    handleDelete,
+    handleEdit,
+    handleSaveError,
+    handleSaveSuccess,
+    showModal
+} from "../../utils/BasicHandlers";
+import {WaitersColumn} from "./DataForm/WaitersColumn";
+import {waiterSlice} from "../../store/store";
 
 const { Search } = Input;
-
-const waiterSlice = generateSlice('waiters', waitersUrl);
 
 function WaiterList() {
     const dispatch = useDispatch();
     const waiters = useSelector((state) => state.waiters.list);
-    const navigate = useNavigate();
-    const location = useLocation();
+    let [searchParams, setSearchParams] = useSearchParams()
+    const filter = searchParams.get('filter');
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -29,29 +36,6 @@ function WaiterList() {
         dispatch(waiterSlice.fetchItems());
     }, [dispatch]);
 
-    const columns = [
-        {
-            title: 'First Name',
-            dataIndex: 'firstName',
-            key: 'firstName',
-        },
-        {
-            title: 'Phone',
-            dataIndex: 'phone',
-            key: 'phone',
-        },
-        {
-            title: 'Actions',
-            key: 'actions',
-            render: (text, record) => (
-                <Space>
-                    <Button onClick={() => handleEdit(record)}>Edit</Button>
-                    <Button onClick={() => handleDelete(record.id)}>Delete</Button>
-                </Space>
-            ),
-        },
-    ];
-
     const filterWaiters = (filter) => {
         if (!filter) {
             return waiters;
@@ -62,22 +46,13 @@ function WaiterList() {
         });
     };
 
-    const updateFilter = (value) => {
-        navigate(`/waiters?filter=${value}`);
-        setSearchValue('');
-    };
+    const updateFilterWaiters = () => {
+        updateFilter(searchValue, setSearchParams, setSearchValue);
+    }
 
-    const clearFilter = () => {
-        navigate('/waiters');
-        setSearchValue('');
-    };
-
-    const showModal = () => {
-        setIsModalVisible(true);
-        form.resetFields();
-        setIsEditing(false);
-        setInitialFormData({});
-    };
+    const clearFilterWaiters = () => {
+        clearFilter(setSearchParams, setSearchValue);
+    }
 
     const handleOk = async () => {
         try {
@@ -86,15 +61,17 @@ function WaiterList() {
                 message.error("A waiter with the same name and phone number already exists.");
             } else {
                 if (isEditing) {
-                    dispatch(waiterSlice.updateItem(form.getFieldValue('id'), values));
+                    await dispatch(waiterSlice.updateItem(form.getFieldValue('id'), values));
                 } else {
                     await dispatch(waiterSlice.createItem(values));
                 }
                 setIsModalVisible(false);
-                handleSaveSuccess();
+                handleSaveSuccess(setSaveError);
+                message.success('Successfully.');
             }
         } catch (error) {
-            handleSaveError();
+            handleSaveError(setSaveError);
+            message.error(error);
         }
     };
 
@@ -106,28 +83,23 @@ function WaiterList() {
         );
     };
 
-    const handleCancel = () => {
-        setIsModalVisible(false);
-    };
+    const handleEditWaiters = (data) => {
+        handleEdit(data, setIsModalVisible, form, setIsEditing, setInitialFormData);
+    }
 
-    const handleEdit = (data) => {
-        setIsModalVisible(true);
-        form.setFieldsValue(data);
-        setIsEditing(true);
-        setInitialFormData(data);
-    };
+    const handleDeleteWaiters = (id) => {
+        handleDelete(id, dispatch, waiterSlice).then(r => message.success('Deleted.'));
+    }
 
-    const handleDelete = (id) => {
-        dispatch(waiterSlice.deleteItem(id));
-    };
+    const handleCancelWaiter = () => {
+        handleCancel(setIsModalVisible);
+    }
 
-    const handleSaveError = () => {
-        setSaveError(true);
-    };
+    const showModalWaiter = () => {
+        showModal(setIsModalVisible, form, setIsEditing, setInitialFormData);
+    }
 
-    const handleSaveSuccess = () => {
-        setSaveError(false);
-    };
+    const columns = WaitersColumn(handleEditWaiters, handleDeleteWaiters);
 
     return (
         <div>
@@ -136,25 +108,23 @@ function WaiterList() {
                 placeholder="Search by waiter name"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                onSearch={updateFilter}
+                onSearch={updateFilterWaiters}
                 enterButton
                 style={{ marginBottom: '16px' }}
             />
-            <Button type="primary" onClick={showModal}>
+            <Button type="primary" onClick={showModalWaiter}>
                 Add Waiter
             </Button>
-            <Button onClick={clearFilter}>Show All</Button>
+            <Button onClick={clearFilterWaiters}>Show All</Button>
             <Table
-                dataSource={filterWaiters(
-                    new URLSearchParams(location.search).get('filter')
-                )}
+                dataSource={filterWaiters(filter)}
                 columns={columns}
             />
             <Modal
                 title={isEditing ? 'Edit Waiter' : 'Add Waiter'}
                 visible={isModalVisible}
                 onOk={handleOk}
-                onCancel={handleCancel}
+                onCancel={handleCancelWaiter}
             >
                 <Form form={form} name="waiterForm">
                     <Form.Item
@@ -186,9 +156,7 @@ function WaiterList() {
                             name="id"
                             initialValue={initialFormData.id}
                             style={{ display: 'none' }}
-                        >
-                            <Input type="hidden" />
-                        </Form.Item>
+                        />
                     )}
                 </Form>
             </Modal>

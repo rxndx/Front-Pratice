@@ -1,21 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Table, Input, Button, Modal, Form, Space } from 'antd';
-import { useLocation, useNavigate } from "react-router-dom";
+import {Table, Input, Button, Modal, Form, Space, message} from 'antd';
+import {useSearchParams} from "react-router-dom";
 
 import Navigation from "../../components/Navigation";
-import generateSlice from '../../store/reducer';
-import { tablesUrl } from '../../api/url';
+
+import { TableColumn } from "./DataForm/TableColumn";
+import { clearFilter, updateFilter } from "../../utils/Filters";
+import {
+    handleCancel,
+    handleDelete,
+    handleEdit,
+    handleSaveError,
+    handleSaveSuccess,
+    showModal
+} from "../../utils/BasicHandlers";
+import {tableSlice} from "../../store/store";
 
 const { Search } = Input;
-
-const tableSlice = generateSlice('tables', tablesUrl);
 
 function TableList() {
     const dispatch = useDispatch();
     const tables = useSelector((state) => state.tables.list);
-    const navigate = useNavigate();
-    const location = useLocation();
+    let [searchParams, setSearchParams] = useSearchParams()
+    const filter = searchParams.get('filter');
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -29,24 +37,6 @@ function TableList() {
         dispatch(tableSlice.fetchItems());
     }, [dispatch]);
 
-    const columns = [
-        {
-            title: 'Number',
-            dataIndex: 'number',
-            key: 'number',
-        },
-        {
-            title: 'Actions',
-            key: 'actions',
-            render: (text, record) => (
-                <Space>
-                    <Button onClick={() => handleEdit(record)}>Edit</Button>
-                    <Button onClick={() => handleDelete(record.id)}>Delete</Button>
-                </Space>
-            ),
-        },
-    ];
-
     const filterTables = (filter) => {
         if (!filter) {
             return tables;
@@ -57,62 +47,50 @@ function TableList() {
         });
     };
 
-    const updateFilter = (value) => {
-        navigate(`/tables?filter=${value}`);
-        setSearchValue('');
-    };
+    const updateFilterTable = () => {
+        updateFilter(searchValue, setSearchParams, setSearchValue);
+    }
 
-    const clearFilter = () => {
-        navigate('/tables');
-        setSearchValue('');
-    };
-
-    const showModal = () => {
-        setIsModalVisible(true);
-        form.resetFields();
-        setIsEditing(false);
-        setInitialFormData({});
-    };
+    const clearFilterTable = () => {
+        clearFilter(setSearchParams, setSearchValue);
+    }
 
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
             if (isEditing) {
                 if (JSON.stringify(values) !== JSON.stringify(initialFormData)) {
-                    dispatch(tableSlice.updateItem(form.getFieldValue('id'), values));
+                    await dispatch(tableSlice.updateItem(form.getFieldValue('id'), values));
                 }
             } else {
                 await dispatch(tableSlice.createItem(values));
             }
             setIsModalVisible(false);
-            handleSaveSuccess();
+            handleSaveSuccess(setSaveError);
+            message.success('Successfully.');
         } catch (error) {
-            handleSaveError();
+            handleSaveError(setSaveError);
+            message.error(error);
         }
     };
 
-    const handleCancel = () => {
-        setIsModalVisible(false);
-    };
+    const handleEditTable = (data) => {
+        handleEdit(data, setIsModalVisible, form, setIsEditing, setInitialFormData);
+    }
 
-    const handleEdit = (data) => {
-        setIsModalVisible(true);
-        form.setFieldsValue(data);
-        setIsEditing(true);
-        setInitialFormData(data);
-    };
+    const handleDeleteTable = (id) => {
+        handleDelete(id, dispatch, tableSlice).then(r => message.success('Deleted.'));
+    }
 
-    const handleDelete = (id) => {
-        dispatch(tableSlice.deleteItem(id));
-    };
+    const handleCancelTable = () => {
+        handleCancel(setIsModalVisible);
+    }
 
-    const handleSaveError = () => {
-        setSaveError(true);
-    };
+    const showModalTable = () => {
+        showModal(setIsModalVisible, form, setIsEditing, setInitialFormData);
+    }
 
-    const handleSaveSuccess = () => {
-        setSaveError(false);
-    };
+    const columns = TableColumn(handleEditTable, handleDeleteTable);
 
     return (
         <div>
@@ -121,20 +99,20 @@ function TableList() {
                 placeholder="Search by table number"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                onSearch={updateFilter}
+                onSearch={updateFilterTable}
                 enterButton
                 style={{ marginBottom: '16px' }}
             />
-            <Button type="primary" onClick={showModal}>
+            <Button type="primary" onClick={showModalTable}>
                 Add Table
             </Button>
-            <Button onClick={clearFilter}>Show All</Button>
-            <Table dataSource={filterTables(new URLSearchParams(location.search).get('filter'))} columns={columns} />
+            <Button onClick={clearFilterTable}>Show All</Button>
+            <Table dataSource={filterTables(filter)} columns={columns} />
             <Modal
                 title={isEditing ? 'Edit Table' : 'Add Table'}
                 visible={isModalVisible}
                 onOk={handleOk}
-                onCancel={handleCancel}
+                onCancel={handleCancelTable}
             >
                 <Form form={form} name="tableForm">
                     <Form.Item
